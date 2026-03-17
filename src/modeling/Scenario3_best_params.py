@@ -1,19 +1,3 @@
-"""
-generate_confusion_matrix.py
-============================
-Retrains each model using saved hyperparameters from model_results_*.csv files
-and features from selected_features_*.json, generates test set predictions and saves:
-  - predictions_{Model}.csv     (y_true, y_pred per sample)
-  - fig_confusion_best.png      (2x2 confusion matrix, publication-quality)
-
-Uso:
-  python generate_confusion_matrix.py
-  python generate_confusion_matrix.py --data ./Preprocessed_Data --output ./figures
-
-Expected data structure:
-  dataset_train_transformed.csv  — training set (with 'label' column)
-  dataset_test_transformed.csv   — test set  (with 'label' column)
-"""
 
 import argparse, ast, json, warnings
 from pathlib import Path
@@ -59,9 +43,8 @@ def find_dir(name_pattern):
 # ── Locate folders ──────────────────────────────────────────────────────────────
 data_dir    = Path(args.data).resolve()       if args.data       else find_dir('dataset_train_transformed.csv')
 results_dir = Path(args.results_dir).resolve() if args.results_dir else find_dir('model_results_cor*.csv')
-# Output folder: walk up until ML_Results_Scenario3_GridSearch is found
+# Output folder:
 def _find_output_dir():
-    # Try cwd and its parents
     for base in [Path.cwd(), SCRIPT_DIR]:
         candidate = base.parent / 'ML_Results_Scenario3_GridSearch'
         if candidate.exists():
@@ -69,7 +52,7 @@ def _find_output_dir():
         candidate2 = base / 'ML_Results_Scenario3_GridSearch'
         if candidate2.exists():
             return candidate2
-    # Fallback: create next to the script (one level up)
+    # Fallback
     return SCRIPT_DIR.parent / 'ML_Results_Scenario3_GridSearch'
 
 out_dir     = Path(args.output).resolve() if args.output else _find_output_dir()
@@ -85,7 +68,7 @@ print(f"Results : {results_dir}")
 print(f"Output  : {out_dir}")
 
 # ── Per-model file mapping ───────────────────────────────────────────────────────
-# Maps model → (results csv, features json) for the best configuration
+# Maps model
 MODEL_FILES = {
     'KNN':      ('model_results_cor80_cum95_bestKNN.csv',   'selected_features_cor80_cum95_bestKNN.json'),
     'SVM':      ('model_results_cor90_cum80_bestSVM.csv',   'selected_features_cor90_cum80_bestSVM.json'),
@@ -109,7 +92,7 @@ def parse_best_params(params_str):
     except Exception:
         return {}
 
-# ── KNN weight functions — identical to original training pipeline ───────────────
+# ── KNN weight functions ─────────────
 def _knn_weight_inv_dist(distances):
     return 1.0 / (distances + 1e-6)
 
@@ -132,13 +115,12 @@ MLP_ARCH_MAP = {
 def build_knn(params):
     wc     = params.get('weights', 'distance')
     metric = params.get('metric', 'minkowski')
-    # Replicate original pipeline exactly
     if wc == 'inv_dist':
         weights = _knn_weight_inv_dist
     elif wc == 'exp_dist':
         weights = _knn_weight_exp_dist
     else:
-        weights = wc   # 'distance' or 'uniform'
+        weights = wc   
     algorithm = 'brute' if metric == 'cosine' else 'kd_tree'
     return KNeighborsClassifier(
         n_neighbors = params.get('n_neighbors', 5),
@@ -149,7 +131,6 @@ def build_knn(params):
     )
 
 def build_svm(params):
-    # Replicate exactly: tol=1, probability=True, numeric gamma
     sp = dict(
         kernel       = params.get('kernel', 'rbf'),
         C            = params.get('C', 1.0),
@@ -159,14 +140,13 @@ def build_svm(params):
         random_state = RANDOM_SEED,
     )
     if params.get('kernel') == 'rbf':
-        sp['gamma'] = params['gamma']   # always numeric (log_val)
+        sp['gamma'] = params['gamma']   
     return SVC(**sp)
 
 def build_mlp(params):
     arch    = params.get('hidden_layer_sizes_key', '100')
     sizes   = MLP_ARCH_MAP.get(arch, (100,))
     solver  = params.get('solver', 'lbfgs')
-    # lr_schedule: map 'invscale' → 'invscaling'
     lr_sched = params.get('lr_schedule', 'constant')
     if 'invscale' in lr_sched:
         lr_sched = 'invscaling'
@@ -217,7 +197,7 @@ print()
 for model in ['KNN', 'SVM', 'MLP', 'LightGBM']:
     csv_name, json_name = MODEL_FILES[model]
 
-    # Locate files — first in results_dir, then recursive search
+    # Locate files 
     csv_file  = results_dir / csv_name
     json_file = results_dir / json_name
     if not csv_file.exists():
@@ -269,7 +249,7 @@ for model in ['KNN', 'SVM', 'MLP', 'LightGBM']:
     X_tr_sc  = scaler.fit_transform(X_train)
     X_te_sc  = scaler.transform(X_test)
 
-    # Build and train — pipeline identical to original
+    # Build and train
     print(f"  Training {model}...")
     acc_expected = float(row['Accuracy'])
 
@@ -287,7 +267,6 @@ for model in ['KNN', 'SVM', 'MLP', 'LightGBM']:
         y_pred = clf.predict(X_te_sc)
     elif model == 'LightGBM':
         clf = build_lgbm(params)
-        # LightGBM expects DataFrame with feature names (same as original pipeline)
         Xtr_df = pd.DataFrame(X_tr_sc, columns=available)
         Xte_df = pd.DataFrame(X_te_sc, columns=available)
         clf.fit(Xtr_df, y_train)
