@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 plt.ioff()
 
 # ====================================================================
-# RANDOM SEED — idêntico ao Scenario 3 (RANDOM_SEED = 42)
+# RANDOM SEED
 # ====================================================================
 RANDOM_SEED = 42
 
@@ -37,9 +37,6 @@ print(f"✓ OMP_NUM_THREADS=1  (determinismo LightGBM)")
 # ====================================================================
 # CONFIGURATION
 # ====================================================================
-# Combo do Sc3 equivalente a 144 features sem filtros:
-#   Corr=None → label 'NoCorr'  |  Cum=1.00 → 100%
-#   Pasta gerada pelo Sc3: CorrNoCorr_Cum100
 SC3_RESULTS  = './ML_Results_Scenario3_GridSearch'
 DATASET_PATH = './Preprocessed_Data'
 COMBO_FOLDER = os.path.join(SC3_RESULTS, 'CorrNoCorr_Cum100')
@@ -55,7 +52,7 @@ print(f"✓ Loading hyperparameters from: {COMBO_FOLDER}")
 print(f"✓ Output folder: {output_folder}")
 
 # ====================================================================
-# KNN WEIGHT FUNCTIONS  (named — lambdas cannot be pickled by joblib)
+# KNN WEIGHT FUNCTIONS 
 # ====================================================================
 
 def _knn_weight_inv_dist(distances):
@@ -66,7 +63,6 @@ def _knn_weight_exp_dist(distances):
 
 # ====================================================================
 # MLP ARCHITECTURE MAP
-# Idêntico ao Scenario 3 — NÃO adicionar arquiteturas extras aqui.
 # ====================================================================
 MLP_ARCH_MAP = {
     '50':      (50,),
@@ -121,7 +117,6 @@ def load_selected_features():
 
 # ====================================================================
 # REBUILD MODELS FROM SAVED HYPERPARAMETERS
-# Lógica de reconstrução idêntica ao Scenario 3 para cada modelo.
 # ====================================================================
 
 def rebuild_models(best_params_path):
@@ -129,7 +124,7 @@ def rebuild_models(best_params_path):
     with open(best_params_path) as f:
         all_params = json.load(f)
 
-    seed   = RANDOM_SEED   # mesmo seed do Sc3
+    seed   = RANDOM_SEED 
     models = {}
 
     for model_name, best_params in all_params.items():
@@ -151,10 +146,6 @@ def rebuild_models(best_params_path):
                     algorithm='brute' if mt == 'cosine' else 'kd_tree')
 
             # ── SVM ───────────────────────────────────────────────────────
-            # Sc3: kernel fixo em 'rbf', gamma_choice fixo em 'scale'.
-            # O Optuna salva 'gamma' como float (log_val), mas gamma_choice='scale'
-            # significa que o modelo usa gamma='scale' — o float não é usado.
-            # Reproduzimos exatamente isso aqui.
             elif model_name == 'SVM':
                 from sklearn.svm import SVC
                 sp = dict(
@@ -165,30 +156,24 @@ def rebuild_models(best_params_path):
                     random_state=seed)
                 gc = best_params.get('gamma_choice', 'scale')
                 if gc == 'log_val':
-                    sp['gamma'] = best_params['gamma']  # usa o float salvo
+                    sp['gamma'] = best_params['gamma']  
                 else:
                     sp['gamma'] = gc
                 models[model_name] = SVC(**sp)
             # ── MLP ───────────────────────────────────────────────────────
-            # Sc3: solver fixo em 'lbfgs', lr_schedule fixo em 'invscale'.
-            # Como lbfgs não usa learning_rate_init/batch_size/beta, esses
-            # parâmetros não aparecem no espaço do Sc3 e não são reconstruídos.
-            # validation_fraction=0.2 (igual ao Sc3 no rebuild).
             elif model_name == 'MLP':
                 from sklearn.neural_network import MLPClassifier
                 mp = dict(
                     hidden_layer_sizes=MLP_ARCH_MAP[best_params['hidden_layer_sizes_key']],
                     activation=best_params['activation'],
-                    solver=best_params['solver'],        # 'lbfgs' no Sc3
+                    solver=best_params['solver'],        
                     alpha=best_params['alpha'],
                     max_iter=best_params['max_iter'],
                     tol=1e-4,
                     early_stopping=True,
-                    validation_fraction=0.2,             # idêntico ao Sc3 rebuild
+                    validation_fraction=0.2,             
                     n_iter_no_change=20,
                     random_state=seed)
-                # lbfgs não usa learning_rate_init, batch_size, beta_1, beta_2,
-                # momentum — não adicionamos nada além do que está acima.
                 models[model_name] = MLPClassifier(**mp)
 
             # ── LightGBM ──────────────────────────────────────────────────
@@ -317,7 +302,7 @@ def generate_shap_analysis(trained_models, X_train_sc, X_test_sc,
     X_train_df = pd.DataFrame(X_train_sc, columns=feature_names)
     X_test_df  = pd.DataFrame(X_test_sc,  columns=feature_names)
     shap_rankings  = {}
-    shap_per_class = {}   # {model_name: {class_name: {feature: score}}}
+    shap_per_class = {} 
 
     for model_name, model in trained_models.items():
         print(f"\n  SHAP for {model_name}...")
@@ -412,7 +397,7 @@ def generate_shap_analysis(trained_models, X_train_sc, X_test_sc,
 
             # ── Grouped bar plot: top-20 features × class ────────────────────
             top20_names   = [f for f, _ in top20]
-            class_colors  = ['#4C72B0', '#DD8452', '#55A868']   # up to 3 classes
+            class_colors  = ['#4C72B0', '#DD8452', '#55A868']  
             n_feat        = len(top20_names)
             n_cls         = len(class_names)
             bar_width     = 0.8 / n_cls
@@ -510,10 +495,10 @@ def main():
     print(f" Hyperspace idêntico ao Scenario 3 | MLP_ARCH_MAP alinhado")
     print(f"{'='*70}")
 
-    # 1. Carregar dados
+    # 1. Load Data
     X_train, X_test, y_train, y_test, class_names = load_dataset()
 
-    # 2. Carregar features selecionadas do combo Sc3 (todas as 144)
+    # 2. Load features
     features = load_selected_features()
     if features is None:
         print("ERRO: features não encontradas. Verifique COMBO_FOLDER.")
@@ -522,12 +507,12 @@ def main():
     X_train_sel = X_train[features]
     X_test_sel  = X_test[features]
 
-    # 3. Escalar
+    # 3. scale
     scaler     = StandardScaler()
     X_train_sc = scaler.fit_transform(X_train_sel)
     X_test_sc  = scaler.transform(X_test_sel)
 
-    # 4. Reconstruir modelos a partir dos hiperparâmetros salvos pelo Sc3
+    # 4. Rebuild models
     params_file = os.path.join(COMBO_FOLDER, 'best_hyperparameters.json')
     if not os.path.exists(params_file):
         print(f"ERRO: {params_file} não encontrado.")
