@@ -1,12 +1,3 @@
-"""
-UMAP GENERATOR — SCENARIOS 1, 2, 3
-====================================================================
-Sc1: raw sensor data flattened (Fx_1..Fz_N) — dataset_train/test_original.csv
-Sc2: todas as 144 features transformadas   — dataset_train/test_transformed.csv
-Sc3: features do combo corr×cumulative com maior F1_Macro individual;
-     desempate por menor numero de features.
-     Le grid_search_summary.csv e selected_features.json do combo vencedor.
-"""
 
 import ast
 import json
@@ -41,13 +32,13 @@ CONFIG = {
     'plot_settings': {
         'width':      900,
         'height':     700,
-        'title_size': 40,   # dobrado (era 20)
-        'font_size':  32,   # dobrado (era 16)
+        'title_size': 40,   
+        'font_size':  32,   
         'point_size': 8,
         'opacity':    0.7,
     },
 
-    # Cores fixas por classe: normal=verde, collision=vermelho, obstruction=azul
+    # colors
     'class_colors': {
         'normal':      '#2ca02c',
         'collision':   '#d62728',
@@ -151,7 +142,7 @@ def load_scenario2(preprocessed_path, dataset_type):
 
 
 # ====================================================================
-# SCENARIO 3 — best combo by F1_Macro (tie-break: fewer features)
+# SCENARIO 3 — best combo by F1_Macro
 # ====================================================================
 
 def find_best_combo_scenario3(scenario3_path):
@@ -351,7 +342,6 @@ def plot_comparative_umaps(entries, dataset_type):
         row=1, col=1,
     )
 
-    # Dobrar fonte dos subplot_titles e empurrar para cima (evita sobreposição)
     for ann in fig.layout.annotations:
         ann.font = dict(size=ps['font_size'])
         ann.y   += 0.06
@@ -359,7 +349,7 @@ def plot_comparative_umaps(entries, dataset_type):
     fig.update_layout(
         height=800,
         width=2200,
-        margin=dict(t=180),   # margem top para título global + subtítulos
+        margin=dict(t=180),  
         title=dict(
             text=f'UMAP Comparison — Scenarios 1, 2, 3 ({dataset_type.title()} set)',
             x=0.5,
