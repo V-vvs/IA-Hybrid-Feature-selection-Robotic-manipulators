@@ -1,0 +1,37 @@
+{
+  "split_config": {
+    "split_method": "holdout",
+    "test_size": 0.2,
+    "random_state": 42,
+    "stratify": true
+  },
+  "outlier_config": {
+    "enable_outlier_treatment": false,
+    "method": "iqr",
+    "iqr_multiplier": 1.5,
+    "zscore_threshold": 3.0,
+    "percentile_lower": 2.5,
+    "percentile_upper": 97.5,
+    "min_samples_after_treatment": 3
+  },
+  "variables": [
+    "Fx",
+    "Fy",
+    "Fz",
+    "Tx",
+    "Ty",
+    "Tz"
+  ],
+  "output_folder": "Preprocessed_Data",
+  "features_per_variable": 24,
+  "total_features": 144,
+  "total_samples": {
+    "train": 201,
+    "test": 51
+  },
+  "classes": [
+    "collision",
+    "normal",
+    "obstruction"
+  ]
+}

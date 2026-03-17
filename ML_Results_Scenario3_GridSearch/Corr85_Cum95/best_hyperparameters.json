@@ -1,0 +1,38 @@
+{
+  "KNN": {
+    "n_neighbors": 2,
+    "metric": "cosine",
+    "p": 2.5,
+    "weights": "distance"
+  },
+  "SVM": {
+    "kernel": "rbf",
+    "C": 2.168062052410958,
+    "class_weight": null,
+    "gamma_choice": "log_val",
+    "gamma": 0.015724938366290107
+  },
+  "MLP": {
+    "hidden_layer_sizes_key": "150",
+    "solver": "lbfgs",
+    "lr_schedule": "invscale",
+    "activation": "relu",
+    "alpha": 0.023564162288731202,
+    "max_iter": 1000
+  },
+  "LightGBM": {
+    "n_estimators": 1075,
+    "learning_rate": 0.23423583777335766,
+    "num_leaves": 9,
+    "max_depth": 6,
+    "subsample": 0.6311816151710687,
+    "colsample_bytree": 0.9501005326203984,
+    "reg_alpha": 0.39037299940888354,
+    "reg_lambda": 0.4121300804621962,
+    "min_child_samples": 33,
+    "min_data_in_leaf": 17,
+    "feature_fraction": 0.8794074202998075,
+    "bagging_fraction": 0.9998984520806086,
+    "bagging_freq": 9
+  }
+}

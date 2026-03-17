@@ -1,0 +1,30 @@
+{
+  "corr_threshold": "0.70",
+  "cum_threshold": 0.8,
+  "n_features": 23,
+  "features": [
+    "Fz_min",
+    "Tx_rms",
+    "Ty_rms",
+    "Tx_std",
+    "Fx_peak_frequency",
+    "Tz_rms",
+    "Ty_peak_frequency",
+    "Tx_crest_factor",
+    "Fz_shape_factor",
+    "Fz_peak_frequency",
+    "Tx_peak_frequency",
+    "Tx_iqr",
+    "Fy_zero_crossing_rate",
+    "Fz_first",
+    "Ty_crest_factor",
+    "Fy_max",
+    "Fy_peak_frequency",
+    "Fz_max",
+    "Tx_min",
+    "Ty_min",
+    "Tz_entropy",
+    "Fx_zero_crossing_rate",
+    "Fz_entropy"
+  ]
+}

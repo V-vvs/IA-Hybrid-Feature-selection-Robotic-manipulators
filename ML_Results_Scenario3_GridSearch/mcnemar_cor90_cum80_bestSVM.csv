@@ -1,0 +1,7 @@
+model_a,model_b,n01,n10,n00,n11,statistic,p_value,significant_at_0.05,significant_at_0.01
+KNN,SVM,0,4,1,46,2.25,0.13361440253771584,False,False
+KNN,MLP,1,3,2,45,0.25,0.6170750774519739,False,False
+KNN,LightGBM,0,3,2,46,1.3333333333333333,0.24821307898992362,False,False
+SVM,MLP,2,0,1,48,0.5,0.47950012218695337,False,False
+SVM,LightGBM,1,0,1,49,0.0,1.0,False,False
+MLP,LightGBM,0,1,2,48,0.0,1.0,False,False

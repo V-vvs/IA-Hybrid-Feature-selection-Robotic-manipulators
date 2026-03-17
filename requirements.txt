@@ -1,0 +1,27 @@
+# ============================================================
+# Requirements — Feature Selection for Robotic Fault Diagnosis
+# ============================================================
+# Python >= 3.9 recommended
+# Install with: pip install -r requirements.txt
+
+# Core data handling
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# Machine learning
+scikit-learn>=1.3.0
+lightgbm>=4.0.0
+optuna>=3.4.0
+
+# Explainability
+shap>=0.44.0
+
+# Dimensionality reduction & visualization
+umap-learn>=0.5.5
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.18.0
+
+# Feature selection (ReliefF)
+skrebate>=0.62

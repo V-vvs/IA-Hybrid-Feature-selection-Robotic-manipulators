@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+.Python
+venv/
+env/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Resultados (arquivos grandes - não versionar)
+results/
+ML_Results*/
+Preprocessed_Data/
+ReliefF_ANOVA_Correlation_Results/
+UMAP_Analysis/
+TimeSeries_Plots*/
+Validation_Results/
+
+# Modelos treinados (muito grandes)
+*.pkl
+*.joblib
+*.h5
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
