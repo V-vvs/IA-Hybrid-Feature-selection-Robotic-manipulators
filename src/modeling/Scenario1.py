@@ -2,7 +2,7 @@ import os
 import sys
 
 # ====================================================================
-# REPRODUCIBILITY: env vars MUST be set before ANY library import.
+# REPRODUCIBILITY
 # ====================================================================
 RANDOM_SEED = 42
 os.environ['PYTHONHASHSEED']   = str(RANDOM_SEED)
@@ -64,7 +64,7 @@ plt.ioff()
 
 
 # ====================================================================
-# MLP ARCHITECTURE MAP — defined ONCE, used in objective and rebuild.
+# MLP ARCHITECTURE MAP
 # ====================================================================
 MLP_ARCH_MAP = {
     '50':      (50,),
@@ -91,7 +91,6 @@ SKIP_LIGHTGBM       = False
 APPLY_SHAP_ANALYSIS = True
 SHAP_SAMPLE_SIZE    = 100
 
-# Aligned with Scenario 3/4: 100 trials each, 10-fold CV
 N_TRIALS_MAP = {'KNN': 50, 'SVM': 50, 'MLP': 50, 'LightGBM': 50} 
 CV_FOLDS     = 10  
 
@@ -118,7 +117,7 @@ def optimize_with_optuna(X_train, y_train, model_name, cv_folds=10):
     """
     print(f"  Optimizing {model_name} with Optuna...", end=" ")
 
-    seed     = RANDOM_SEED   # seed único para todos os modelos (alinhado com Sc3)
+    seed     = RANDOM_SEED   
     cv       = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=seed)
     n_trials = N_TRIALS_MAP[model_name]
 
@@ -551,7 +550,7 @@ def calculate_shap_importance(model, X_sample, model_name, feature_names, vars_l
                 ma = np.mean(np.abs(agg[:, :, ci]), axis=0)
                 per_class_importance[cn] = dict(zip(vars_list, ma))
         elif class_names is not None and agg.ndim == 2:
-            # binary — single output; assign to both classes with opposite sign convention
+            # binary — single output
             ma = np.mean(np.abs(agg), axis=0)
             for cn in class_names:
                 per_class_importance[cn] = dict(zip(vars_list, ma))
@@ -853,7 +852,7 @@ def train_evaluate_models(X_tr, y_tr, X_te, y_te, scenario_name, class_labels):
             prec_w = precision_score(y_te, y_pred, average='weighted', zero_division=0)
             rec_w  = recall_score(y_te, y_pred, average='weighted',    zero_division=0)
 
-            ci_seed = RANDOM_SEED   # seed único (alinhado com Sc3)
+            ci_seed = RANDOM_SEED 
             print(f"  Calculating 95% bootstrap confidence intervals...")
             ci = calculate_confidence_intervals(y_te, y_pred, seed=ci_seed)
 
@@ -883,7 +882,6 @@ def train_evaluate_models(X_tr, y_tr, X_te, y_te, scenario_name, class_labels):
                 'cv_f1_std':                   cv_std,
                 'cv_f1_best_fold':             cv_max_fold,
                 'best_params':                 best_params,
-                # ── digits=4 para consistência com Scenarios 2 e 3 ──────────
                 'classification_report':       classification_report(
                     y_te, y_pred, target_names=class_labels,
                     zero_division=0, digits=4),
@@ -946,7 +944,6 @@ def plot_confusion_matrix_eval(y_true_cm, y_pred_cm, model_name_cm,
     prec_v = precision_score(y_true_cm, y_pred_cm, average='macro', zero_division=0)
     rec_v  = recall_score(y_true_cm, y_pred_cm, average='macro',    zero_division=0)
 
-    # digits=4 também no texto do gráfico para consistência
     plt.figtext(0.02, 0.01,
                 f'Accuracy: {acc_v:.4f}\nF1-Macro: {f1_v:.4f}\n'
                 f'Precision-Macro: {prec_v:.4f}\nRecall-Macro: {rec_v:.4f}',
