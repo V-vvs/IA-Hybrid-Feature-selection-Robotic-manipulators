@@ -23,12 +23,12 @@ def find_file(name):
     return None
 
 def _find_output_dir():
-    # Detect project root: walk up from cwd until we find a folder
+    # Detect project root
     cwd = Path.cwd().resolve()
     for folder in [cwd, cwd.parent, cwd.parent.parent]:
         if (folder / 'src').exists():
             return folder / 'Validation_Scenarios'
-    # Fallback: one level above the script
+    # Fallback
     return SCRIPT_DIR.parent / 'Validation_Scenarios'
 
 OUT_DIR = Path(args.output).resolve() if args.output else _find_output_dir()
@@ -90,7 +90,7 @@ FS = dict(
     title   = 34,
     suptitle= 38,
     annot   = 28,
-    legend  = 34,   # legend patches — largest increase
+    legend  = 34,  
     footer  = 26,
 )
 
@@ -136,11 +136,11 @@ for model in models:
         return C_SC3                            # only in other scenario
 
     # Sc4 panel: ref_self=sc4_set, ref_other=sc3_set
-    # green = only sc4, red = only sc3 (i.e. in sc3 but shown in sc4 panel → red)
+    # green = only sc4, red = only sc3
     def color_sc4(feat):
         if feat in sc4_set and feat in sc3_set: return C_BOTH
         if feat in sc4_set:                     return C_SC4
-        return C_SC3   # shouldn't appear here, just safety
+        return C_SC3  
 
     def color_sc3(feat):
         if feat in sc3_set and feat in sc4_set: return C_BOTH
@@ -155,7 +155,7 @@ for model in models:
 
     # Height proportional to max features, min 16 inches
     fig_h = max(16, max_rows * 0.45)
-    fig_w = 52   # wide to accommodate large fonts
+    fig_w = 52   
 
     fig = plt.figure(figsize=(fig_w, fig_h))
     gs  = gridspec.GridSpec(
@@ -218,7 +218,7 @@ for model in models:
 
     ax_none.barh(range(n_none), vals_none, color=colors_none, height=0.75,
                  alpha=0.85, zorder=3)
-    # Smaller font for panel right — it has many more features
+    # Smaller font for panel right
     tick_none = max(14, FS['tick'] - 12)
     ax_none.set_yticks(range(n_none))
     ax_none.set_yticklabels(neither, fontsize=tick_none,
