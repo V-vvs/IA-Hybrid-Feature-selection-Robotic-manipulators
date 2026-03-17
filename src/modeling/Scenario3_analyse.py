@@ -1,12 +1,3 @@
-"""
-plot_journal_v3.py — Publication-quality figures for Scenario 3.
-
-Output:
-  fig_journal_accuracy.png        — per-model heatmap for Accuracy  (2x2 layout)
-  fig_journal_f1macro.png         — per-model heatmap for F1-Macro   (2x2 layout)
-  fig_journal_feature_ranking.png — top 40 feature ranking
-  fig_sensitivity_combined.png    — F1-Macro sensitivity (corr & cum thresholds)
-"""
 
 import argparse, sys, warnings
 from pathlib import Path
@@ -51,7 +42,7 @@ OUT_DIR = Path(args.output).resolve() if args.output else csv_path.parent
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 print(f"Input : {csv_path}\nOutput: {OUT_DIR}")
 
-# ── Matplotlib base settings — fontes aumentadas ───────────────────────────────
+# ── Matplotlib base settings ────────────────────────
 plt.rcParams.update({
     'font.family':           'serif',
     'font.serif':            ['DejaVu Serif', 'Times New Roman', 'Times'],
@@ -124,7 +115,6 @@ def make_figure(metric, metric_label, filename):
         im = ax.imshow(pivot_val.values, aspect='auto', cmap=cmap_blue,
                        vmin=vmin, vmax=vmax, interpolation='nearest')
 
-        # Anotações nas células
         for r in range(pivot_val.shape[0]):
             for c in range(pivot_val.shape[1]):
                 v = pivot_val.values[r, c]
@@ -141,7 +131,7 @@ def make_figure(metric, metric_label, filename):
         ax.set_xticklabels(cum_labels, rotation=45, ha='right', fontsize=24)
         ax.set_yticks(range(len(corr_order)))
 
-        # Eixo Y com label apenas na coluna esquerda
+        # y axis
         if col_i % 2 == 0:
             ax.set_yticklabels(corr_order, fontsize=24)
             ax.set_ylabel('Pearson Correlation Threshold ($\\rho$)', fontsize=26,
@@ -149,7 +139,7 @@ def make_figure(metric, metric_label, filename):
         else:
             ax.set_yticklabels([])
 
-        # Eixo X com label apenas na linha de baixo
+        # x axis
         if col_i >= 2:
             ax.set_xlabel(r'Cumulative Threshold ($\tau_{cum}$)', fontsize=26,
                           labelpad=10)
@@ -162,18 +152,17 @@ def make_figure(metric, metric_label, filename):
         ax.grid(which='minor', color='white', linewidth=1.2)
         ax.tick_params(which='minor', bottom=False, left=False)
 
-        # guarda o último im para a colorbar global
+        # global
         if col_i == 3:
             im_last = im
 
-    # Colorbar global — ocupa toda a altura direita da figura
+    #  global Colorbar
     cbar_ax = fig.add_axes([0.89, 0.08, 0.018, 0.86])   # [left, bottom, width, height]
     cbar = fig.colorbar(im_last, cax=cbar_ax)
     cbar.ax.tick_params(labelsize=26)
     cbar.set_label(metric_label, fontsize=26, labelpad=14)
     cbar.set_ticks([0.84, 0.88, 0.92, 0.96, 1.00])
 
-    # Nota de rodapé
     fig.text(
         0.50, 0.02,
         'Cell annotation: upper value = metric score; '
@@ -193,12 +182,10 @@ make_figure('F1_Macro', 'F1-Macro', 'fig_journal_f1macro.png')
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SENSITIVITY FIGURE — F1-Macro vs Corr Threshold  +  F1-Macro vs Cum Threshold
-# (mean ± std over models, reproduz fig_sensitivity_combined)
 # ══════════════════════════════════════════════════════════════════════════════
 def make_sensitivity_figure():
     print("Creating sensitivity figure...")
 
-    # ── paletas ───────────────────────────────────────────────────────────────
     cum_colors  = {
         0.80: '#08306b', 0.85: '#2171b5',
         0.90: '#6baed6', 0.95: '#41ab5d', 1.00: '#addd8e',
@@ -219,13 +206,13 @@ def make_sensitivity_figure():
     # ── helpers ───────────────────────────────────────────────────────────────
     def corr_num(v):
         try:    return float(v)
-        except: return np.nan   # NoCorr → NaN para poder plotar separado
+        except: return np.nan   # NoCorr
 
     corr_num_order = [0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0, np.nan]
     corr_x_labels  = ['0.7','0.75','0.8','0.85','0.9','0.95','1.0','NoCorr']
     corr_x_pos     = list(range(len(corr_x_labels)))
 
-    # ── LEFT: F1 vs Corr Threshold (uma linha por cum_threshold) ─────────────
+    # ── LEFT: F1 vs Corr Threshold ──────
     for cum in cum_order:
         sub  = df[df['Cum_Threshold'] == cum].copy()
         sub['Corr_x'] = sub['Corr_Label'].apply(
@@ -253,7 +240,7 @@ def make_sensitivity_figure():
     ax1.legend(fontsize=22, loc='lower right', framealpha=0.9)
     ax1.grid(True, linestyle=':', alpha=0.4)
 
-    # ── RIGHT: F1 vs Cum Threshold (uma linha por corr_threshold) ────────────
+    # ── RIGHT: F1 vs Cum Threshold ─────
     for corr_lbl in corr_order:
         sub = df[df['Corr_Label'] == corr_lbl].copy()
         agg = (sub.groupby('Cum_Threshold')['F1_Macro']
@@ -290,7 +277,7 @@ make_sensitivity_figure()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# CONFUSION MATRIX FIGURE — melhor config por modelo, layout 2×2
+# CONFUSION MATRIX FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
 def make_confusion_figure():
     """
@@ -313,7 +300,7 @@ def make_confusion_figure():
     cmap_cm = LinearSegmentedColormap.from_list(
         'cm_blue', ['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#084594'])
 
-    # ── melhor config por modelo ──────────────────────────────────────────────
+    # ── best config ──────────────────────────────────────────────
     df_s = pd.read_csv(csv_path)
     df_s['F1_Macro']     = pd.to_numeric(df_s['F1_Macro'],     errors='coerce')
     df_s['Num_Features'] = pd.to_numeric(df_s['Num_Features'], errors='coerce')
@@ -330,7 +317,7 @@ def make_confusion_figure():
                      .first()
                      .reset_index())
 
-    sc3_dir = csv_path.parent   # pasta do grid_search_summary.csv
+    sc3_dir = csv_path.parent   # path - grid_search_summary.csv
 
     fig, axes = plt.subplots(
         2, 2,
@@ -359,10 +346,9 @@ def make_confusion_figure():
         n_feat  = int(row['Num_Features'])
         f1_val  = row['F1_Macro']
 
-        # Tenta carregar arquivo de predições
+        # prediction files
         pred_file = sc3_dir / combo / f'predictions_{model}_test.csv'
         if not pred_file.exists():
-            # busca recursiva
             found = list(sc3_dir.rglob(f'predictions_{model}_test.csv'))
             if found:
                 pred_file = found[0]
@@ -373,10 +359,9 @@ def make_confusion_figure():
             y_pred = preds['y_pred'].tolist()
             acc    = np.mean(np.array(y_true) == np.array(y_pred))
         else:
-            # fallback: tenta ler Accuracy do summary
+            # fallback
             print(f"   WARNING: predictions file not found for {model} — using summary Accuracy")
             acc = row.get('Accuracy', float('nan'))
-            # matriz fictícia nula para não crashar
             y_true, y_pred = [], []
 
         if y_true:
@@ -387,7 +372,6 @@ def make_confusion_figure():
         # Plot
         im = ax.imshow(cm, cmap=cmap_cm, aspect='auto', interpolation='nearest')
 
-        # Anotações
         for r in range(len(classes)):
             for c in range(len(classes)):
                 val = cm[r, c]
