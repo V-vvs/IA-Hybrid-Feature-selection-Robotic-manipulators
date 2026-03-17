@@ -190,13 +190,9 @@ Original dataset:
 
 ---
 
-## License
-
-This project is licensed under the MIT License.
-
----
 
 ## Contact
 
 **Vanessa V. de Sousa** — Federal University of Ceará, Department of Teleinformatics Engineering  
 📧 vanessa.vieira@alu.ufc.br
+📧 vanessavieiras.vvs@gmail.com
