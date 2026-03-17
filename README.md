@@ -35,17 +35,30 @@ Place the raw data files in `data/raw/` before running the pipeline.
 │   ├── dataset_test_original.csv
 │   ├── dataset_train_transformed.csv
 │   └── dataset_test_transformed.csv
-├── Split_datasets.py                # Step 0: train/test split + feature extraction
-├── Scenario1.py                     # Step 1: raw temporal features
-├── Scenario2.py                     # Step 2: all 144 statistical features + SHAP
-├── Scenario3.py                     # Step 3: grid search (ANOVA + ReliefF + correlation)
-├── Scenario3_analyse.py             # Step 3 analysis: publication figures
-├── Scenario3_best_params.py         # Step 3 confusion matrices (best config per model)
-├── Scenario4.py                     # Step 4: SHAP-based feature selection figures
-├── cross_scnarios_analysis.py       # Cross-scenario feature overlap analysis (Fig. 12)
-├── UMAPs.py                         # UMAP dimensionality reduction visualization
-├── imprime_curvas.py                # Force/torque time-series plots (Fig. 4)
-├── Distribuition_Datasets.py        # Dataset distribution plots (Fig. 2 & 3)
+├── ML_Results_Scenario1_RawData_Scenario1_RawData_Reproducible_AlignedHyperspace/
+├── ML_Results_Scenario2_SHAP/
+├── ML_Results_Scenario3_GridSearch/
+├── ML_Results_Scenario4_ModelSpecific_SHAP_Optuna_Complete/
+├── TimeSeries_Plots_V11_EN/
+├── UMAP_Scenarios_1_2_3/
+├── Validation_Scenarios/
+├── src/
+│   ├── modeling/
+│   │   ├── Scenario1.py                  # Step 1: raw temporal features
+│   │   ├── Scenario2.py                  # Step 2: all 144 statistical features + SHAP
+│   │   ├── Scenario3.py                  # Step 3: grid search (ANOVA + ReliefF + correlation)
+│   │   ├── Scenario3_analyse.py          # Step 3 analysis: publication figures
+│   │   ├── Scenario3_best_params.py      # Step 3 confusion matrices (best config per model)
+│   │   └── Scenario4.py                  # Step 4: SHAP-based feature selection figures
+│   ├── preprocessing/
+│   │   └── Split_datasets.py             # Step 0: train/test split + feature extraction
+│   └── validation/
+│       └── cross_scnarios_analysis.py    # Cross-scenario feature overlap analysis (Fig. 12)
+│   └── visualization/
+│       ├── Distribuition_Datasets.py     # Dataset distribution plots (Fig. 2 & 3)
+│       ├── UMAPs.py                      # UMAP dimensionality reduction visualization
+│       └── imprime_curvas.py             # Force/torque time-series plots (Fig. 4)
+├── Figure5.png
 ├── requirements.txt
 └── README.md
 ```
@@ -114,7 +127,7 @@ Core contribution of the paper. Runs a full grid search over:
 
 Yielding 40 feature subsets (23–144 features). Each combination trains all 4 classifiers with Optuna optimization. Results saved to `ML_Results_Scenario3_GridSearch/`.
 
-⏱️ *This step is computationally intensive. Expected runtime: several hours depending on hardware.*
+   *This step is computationally intensive. Expected runtime: several hours depending on hardware.*
 
 **Generate publication figures:**
 ```bash
