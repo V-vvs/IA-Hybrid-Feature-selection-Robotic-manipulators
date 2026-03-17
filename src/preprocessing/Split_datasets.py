@@ -1,8 +1,6 @@
 # === PREPROCESSING AND FEATURE EXTRACTION PIPELINE ===
 # Splits dataset into train/test (80/20) and generates statistical features
-# Outputs: 4 CSVs - original train/test + transformed train/test
 # Features: 24 statistics per variable (Fx, Fy, Fz, Tx, Ty, Tz)
-# NEW: Flexible outlier treatment
 
 import os
 import pandas as pd
@@ -27,7 +25,7 @@ SPLIT_CONFIG = {
     'stratify': True           # Maintain class distribution
 }
 
-# === NEW: OUTLIER TREATMENT CONFIGURATION ===
+# OUTLIER TREATMENT CONFIGURATION ===
 OUTLIER_CONFIG = {
     'enable_outlier_treatment': False,    # True/False - Enable outlier treatment
     'method': 'iqr',                     # Method: 'iqr', 'zscore', 'percentile', 'none'
@@ -300,7 +298,7 @@ def extract_statistical_features(row, variables, outlier_config=None):
                 feats.update(default_features)
                 continue
             
-            # === NEW: FLEXIBLE OUTLIER TREATMENT ===
+            # FLEXIBLE OUTLIER TREATMENT ===
             values_clean = values.copy()
             outliers_removed = 0
             
@@ -316,7 +314,6 @@ def extract_statistical_features(row, variables, outlier_config=None):
                 )
                 total_outliers_removed += outliers_removed
             
-            # If nothing remains after treatment, use original values
             if len(values_clean) == 0:
                 values_clean = values
             
@@ -335,7 +332,7 @@ def extract_statistical_features(row, variables, outlier_config=None):
             # Basic location and dispersion statistics
             feats[f'{var}_mean'] = np.mean(values_clean)
             feats[f'{var}_std'] = np.std(values_clean)
-            feats[f'{var}_max'] = np.max(values)  # Max/Min always from original data
+            feats[f'{var}_max'] = np.max(values) 
             feats[f'{var}_min'] = np.min(values)
             feats[f'{var}_median'] = np.median(values_clean)
             feats[f'{var}_iqr'] = IQR
@@ -351,7 +348,7 @@ def extract_statistical_features(row, variables, outlier_config=None):
             except:
                 feats[f'{var}_kurtosis'] = 0.0
             
-            # Energy and magnitude features (always from original data)
+            # Energy and magnitude features
             feats[f'{var}_rms'] = np.sqrt(np.mean(values**2))
             feats[f'{var}_energy'] = np.sum(values**2)
             feats[f'{var}_power'] = np.mean(values**2)
@@ -359,8 +356,8 @@ def extract_statistical_features(row, variables, outlier_config=None):
             
             # Temporal features
             feats[f'{var}_zero_crossing_rate'] = (np.diff(np.sign(values_clean)) != 0).sum() / (values_clean.size - 1) if values_clean.size > 1 else 0.0
-            feats[f'{var}_first'] = values[0]    # Always from original data
-            feats[f'{var}_last'] = values[-1]   # Always from original data
+            feats[f'{var}_first'] = values[0]   
+            feats[f'{var}_last'] = values[-1]  
             feats[f'{var}_peak_to_peak'] = feats[f'{var}_max'] - feats[f'{var}_min']
             
             # Entropy (information)
@@ -394,10 +391,10 @@ def extract_statistical_features(row, variables, outlier_config=None):
             except:
                 feats[f'{var}_cv'] = 0.0
             
-            # 3. 90th Percentile (upper outliers) - from original data
+            # 3. 90th Percentile
             feats[f'{var}_p90'] = np.percentile(values, 90)
             
-            # 4. Slope (linear trend) - from original data
+            # 4. Slope (linear trend) 
             try:
                 if len(values) > 1:
                     x_indices = np.arange(len(values))
@@ -408,7 +405,7 @@ def extract_statistical_features(row, variables, outlier_config=None):
             except:
                 feats[f'{var}_slope'] = 0.0
             
-            # 5. Crest Factor (max/RMS) - force/torque peaks (original data)
+            # 5. Crest Factor (max/RMS) - force/torque peaks 
             try:
                 rms_val = feats[f'{var}_rms']
                 max_abs = np.max(np.abs(values))
@@ -419,7 +416,7 @@ def extract_statistical_features(row, variables, outlier_config=None):
             except:
                 feats[f'{var}_crest_factor'] = 0.0
             
-            # 6. Shape Factor (RMS/mean_abs) - signal shape (original data)
+            # 6. Shape Factor (RMS/mean_abs) - signal shape
             try:
                 rms_val = feats[f'{var}_rms']
                 mean_abs_val = feats[f'{var}_mean_abs']
@@ -430,7 +427,7 @@ def extract_statistical_features(row, variables, outlier_config=None):
             except:
                 feats[f'{var}_shape_factor'] = 0.0
             
-            # 7. Peak Frequency - dominant frequency (original data)
+            # 7. Peak Frequency - dominant frequency 
             try:
                 if len(values) > 2:
                     # FFT to find dominant frequency
