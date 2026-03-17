@@ -1,14 +1,3 @@
-"""
-plot_sc4.py — Scenario 4 figures:
-  1. fig_sc4_heatmap.png         — F1-Macro heatmap (1x4, style of Sc3)
-  2. fig_sc4_combined.png        — heatmap + aggregated sensitivity (large fonts)
-  3. fig_sc4_feature_ranking.png — top features per best model (grouped bars)
-
-Usage:
-  python plot_sc4.py
-  python plot_sc4.py --input path/to/summary.csv --shap path/to/shap_feature_rankings.csv
-  python plot_sc4.py --output path/to/outdir/
-"""
 
 import argparse, sys, warnings
 from pathlib import Path
@@ -156,13 +145,12 @@ print(f"Saved: {out1}")
 # ══════════════════════════════════════════════════════════════════════════════
 model_colors = {'KNN':'#1f77b4','SVM':'#d62728','MLP':'#2ca02c','LightGBM':'#ff7f0e'}
 
-# Todas as fontes dobradas em relação ao original
 FS = dict(annot=40, tick=43, ylabel=46, title=49, legend=40, suptitle=52)
 
 fig2 = plt.figure(figsize=(52, 36))
 gs   = gridspec.GridSpec(2, 4, figure=fig2,
                          height_ratios=[1, 1.4],
-                         hspace=0.22,          # ← reduzido (era 0.50)
+                         hspace=0.22,         
                          wspace=0.30,
                          left=0.07, right=0.97,
                          top=0.93, bottom=0.09)
