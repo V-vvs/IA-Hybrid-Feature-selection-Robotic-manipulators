@@ -26,7 +26,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ====================================================================
-# KNN WEIGHT FUNCTIONS  (named — lambdas cannot be pickled by joblib)
+# KNN WEIGHT FUNCTIONS
 # ====================================================================
 
 def _knn_weight_inv_dist(distances):
@@ -37,11 +37,6 @@ def _knn_weight_exp_dist(distances):
 
 # ====================================================================
 # REPRODUCIBILITY
-# Estratégia: seed ÚNICO (RANDOM_SEED=42) para TODAS as combinações.
-# Todas as otimizações Optuna usam TPESampler(seed=42), garantindo
-# que a busca de hiperparâmetros é idêntica para todo grid point.
-# Isso assegura comparação justa: diferenças de performance refletem
-# apenas as features selecionadas, não o caminho de busca.
 # ====================================================================
 RANDOM_SEED = 42
 
@@ -84,9 +79,7 @@ MAX_FEATURES           = 144
 DATASET_PATH       = './Preprocessed_Data'
 OUTPUT_BASE_FOLDER = 'ML_Results_Scenario3_GridSearch'
 
-N_TRIALS = 50   # 50 trials: adequado para dataset pequeno (201 amostras)
-                # TPE converge em ~30-50 trials para espaços pequenos
-                # 40 combos × 4 modelos × 50 trials × 10-fold CV = 80.000 fits
+N_TRIALS = 50 
 
 print(f"\n✓ Configuration:")
 print(f"   Correlation thresholds : {CORRELATION_THRESHOLDS_TO_TEST}")
@@ -115,20 +108,17 @@ MLP_ARCH_MAP = {
     '50':         (50,),
     '75':         (75,),
     '100':        (100,),
-    #'125':        (125,),
     '150':        (150,),
     '200':        (200,),
-    #'25_125':     (25, 125),
     '75_100':     (75, 100),
     '100_50':     (100, 50),
-    #'125_200':    (125, 200),
     '150_75':     (150, 75),
     '200_150':    (200, 150),
 }
 
 
 # ====================================================================
-# OPTUNA — seed único RANDOM_SEED para todas as combinações
+# OPTUNA
 # ====================================================================
 
 def get_n_trials():
@@ -140,7 +130,7 @@ def optimize_hyperparameters_optuna(X_train, y_train, model_name, feature_names=
     print(f"            Optimizing {model_name}...", end=" ")
     sys.stdout.flush()
 
-    seed     = RANDOM_SEED   # mesmo seed para todas as combinações
+    seed     = RANDOM_SEED  
     cv       = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
     n_trials = get_n_trials()[model_name]
 
@@ -235,7 +225,7 @@ def optimize_hyperparameters_optuna(X_train, y_train, model_name, feature_names=
         except Exception:
             return 0.0
 
-    sampler = TPESampler(seed=seed)   # seed fixo para todos os grid points
+    sampler = TPESampler(seed=seed)  
     study   = optuna.create_study(direction='maximize', sampler=sampler)
     study.optimize(objective, n_trials=n_trials, show_progress_bar=False, n_jobs=1)
 
@@ -303,7 +293,7 @@ def optimize_hyperparameters_optuna(X_train, y_train, model_name, feature_names=
                   deterministic=True, force_row_wise=False)
         best_model = lgb.LGBMClassifier(**lp)
 
-    # ── Recomputa CV no modelo reconstruído ──────────────────────────────────
+    # ── Rebuilt ──────────────────────
     try:
         cv_rebuilt = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
         X_rebuilt  = (pd.DataFrame(X_train, columns=feature_names)
@@ -840,7 +830,7 @@ def plot_sensitivity_analysis(summary_df, feature_counts, output_folder):
     corr_colors  = plt.cm.plasma(np.linspace(0.2, 0.9, n_corr))
     corr_pos     = {lbl: i for i, lbl in enumerate(corr_order)}
 
-    # FIG 1: Métrica vs Correlation Threshold
+    # FIG 1: Metric vs Correlation Threshold
     fig, axes = plt.subplots(len(metrics), len(models),
                              figsize=(5 * len(models), 4.5 * len(metrics)),
                              sharey='row')
@@ -881,7 +871,7 @@ def plot_sensitivity_analysis(summary_df, feature_counts, output_folder):
     plt.savefig(p, dpi=200, bbox_inches='tight'); plt.close()
     print(f"   Saved: sensitivity_corr_threshold.png")
 
-    # FIG 2: Métrica vs Cumulative Threshold
+    # FIG 2: Metric vs Cumulative Threshold
     fig, axes = plt.subplots(len(metrics), len(models),
                              figsize=(5 * len(models), 4.5 * len(metrics)),
                              sharey='row')
@@ -921,7 +911,7 @@ def plot_sensitivity_analysis(summary_df, feature_counts, output_folder):
     plt.savefig(p, dpi=200, bbox_inches='tight'); plt.close()
     print(f"   Saved: sensitivity_cum_threshold.png")
 
-    # FIG 3: Métrica vs Nº de Features
+    # FIG 3: Metrics vs Features
     if 'Num_Features' not in summary_df.columns:
         summary_df['Num_Features'] = summary_df.apply(
             lambda r: feature_counts.get(
@@ -969,7 +959,7 @@ def plot_sensitivity_analysis(summary_df, feature_counts, output_folder):
     plt.savefig(p, dpi=200, bbox_inches='tight'); plt.close()
     print(f"   Saved: sensitivity_n_features.png")
 
-    # FIG 4: Agregado mean ± std entre modelos
+    # FIG 4
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     fig.suptitle('Sensitivity Analysis — Aggregated View (mean ± std across models)',
                  fontsize=14, fontweight='bold')
