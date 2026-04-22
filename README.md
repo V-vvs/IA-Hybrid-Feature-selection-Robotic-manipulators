@@ -1,7 +1,7 @@
 # Feature Selection for Execution Failure Classification in Robotic Manipulators
 
 > **Paper:** "Feature selection for execution failure classification in robotic manipulators: an interpretability-oriented approach"  
-> *Submitted to Pattern Recognition Letters (Springer Nature), 2026*
+> *Submitted to Pattern Analysis and Applications (Springer Nature), 2026*
 
 ---
 
