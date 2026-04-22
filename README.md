@@ -1,7 +1,7 @@
 # Feature Selection for Execution Failure Classification in Robotic Manipulators
 
 > **Paper:** "Feature selection for execution failure classification in robotic manipulators: an interpretability-oriented approach"  
-> *Submitted to Applied Soft Computing (Elsevier), 2026*
+> *Submitted to Pattern Recognition Letters (Springer Nature), 2026*
 
 ---
 
@@ -184,7 +184,7 @@ If you use this code or dataset, please cite:
 @article{sousa2026feature,
   title   = {Feature selection for execution failure classification in robotic manipulators: an interpretability-oriented approach},
   author  = {de Sousa, Vanessa V. and Moura Filho, Joaquim O. F. and Barroso, Giovanni C. and Th{\'e}, George A. P. and Amora, M{\'a}rcio A. B.},
-  journal = {Applied Soft Computing},
+  journal = {Pattern Analysis and Applications},
   year    = {2026},
   note    = {Under review}
 }
